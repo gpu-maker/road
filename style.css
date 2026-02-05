@@ -1,0 +1,60 @@
+body {
+  background: #081a33;
+  color: #bfe9ff;
+  font-family: monospace;
+  padding: 20px;
+}
+
+h1, h2 { color: #66ccff; }
+
+.buttons button {
+  background: #123c6a;
+  color: #bfe9ff;
+  border: 2px solid #66ccff;
+  padding: 6px;
+  margin: 4px;
+}
+
+#inventory, #shelter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.item {
+  border: 2px solid #66ccff;
+  padding: 4px;
+  width: 130px;
+  background: #0f2f55;
+}
+
+/* ===== MINIMAP ===== */
+#minimap {
+  display: grid;
+  grid-template-columns: repeat(5, 12px);
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.mapPixel {
+  width: 12px;
+  height: 12px;
+  background: #021024;
+}
+
+.explored { background: #1e6fa8; }
+.player { background: #66ccff; }
+
+/* PIXEL ICONS */
+.pixel { width: 12px; height: 12px; }
+.axe { background: black; }
+.bow { border: 2px solid black; border-left: none; }
+.armor { background: black; }
+
+#log {
+  background: #07162d;
+  border: 2px solid #66ccff;
+  padding: 6px;
+  height: 130px;
+  overflow-y: auto;
+}
