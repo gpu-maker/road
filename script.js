@@ -1,5 +1,6 @@
 const shelterNames=["","⛺ Tent","🛖 Hut","🏠 Cabin"];
 const weatherTypes=["Clear","Rain","Cold","Storm"];
+const ATTACK_CHANCE=0.25;
 
 const carRepairCosts=[
  {metal:2,wood:2,energy:10},
@@ -14,7 +15,7 @@ let player={
  energy:100,
  thirst:100,
  warmth:50,
- location:"Forest",
+ location:"Shelter",
  day:true,
  weather:0,
 
@@ -33,9 +34,7 @@ let player={
  }
 };
 
-function log(msg){
- document.getElementById("log").textContent=msg;
-}
+function log(m){ document.getElementById("log").textContent=m; }
 
 function updateUI(){
  health.textContent=player.health;
@@ -50,18 +49,13 @@ function updateUI(){
  armor.textContent=`L${player.armor.level} (${player.armor.durability}/${player.armor.max})`;
 
  inventory.innerHTML="";
- for(let i in player.inventory){
+ for(let i in player.inventory)
   inventory.innerHTML+=`<div>${i}: ${player.inventory[i]}</div>`;
- }
 
  carStatus.innerHTML=
   player.car.repairs>=player.car.max
   ? "✅ Car fully repaired"
-  : `Repair ${player.car.repairs+1}/${player.car.max}<br>
-     Cost: ${Object.entries(carRepairCosts[player.car.repairs])
-     .map(([k,v])=>`${k}×${v}`).join(", ")}`;
-
- localStorage.setItem("roadtripSave",JSON.stringify(player));
+  : `Repair ${player.car.repairs+1}/${player.car.max}`;
 
  if(player.health<=0){
   log("💀 You collapse and die.");
@@ -78,24 +72,59 @@ function advanceTime(){
  }
 }
 
-function travel(place){
+function applySurvivalDamage(){
+ if(player.thirst<=0) player.health-=3;
+ else if(player.thirst<=30) player.health-=1;
+ if(player.energy<=0) player.health-=2;
+}
+
+function checkAttack(){
+ if(player.location==="Shelter") return;
+ if(Math.random()>ATTACK_CHANCE) return;
+
+ let dodgeChance=player.armor.level*0.05;
+ if(Math.random()<dodgeChance){
+  log("💨 You dodge the attack!");
+  return;
+ }
+
+ let dmg=Math.floor(Math.random()*6)+5;
+ if(player.armor.durability>0){
+  player.armor.durability--;
+  dmg=Math.max(1,dmg-player.armor.level*2);
+ }
+
+ player.health-=dmg;
+ log("👹 You are attacked (-"+dmg+" HP).");
+}
+
+function travel(p){
  if(player.energy<10) return log("Not enough energy.");
  player.energy-=10;
- player.location=place;
+ player.location=p;
  advanceTime();
+ applySurvivalDamage();
  updateUI();
 }
 
 function gather(){
  if(player.energy<5) return log("Too tired.");
+ if(player.location==="Shelter") return log("Nothing to gather here.");
  player.energy-=5;
  gain(2);
+ checkAttack();
+ applySurvivalDamage();
+ updateUI();
 }
 
 function quickGather(){
  if(player.energy<1) return log("Too tired.");
+ if(player.location==="Shelter") return log("Nothing to gather here.");
  player.energy-=1;
  gain(1);
+ checkAttack();
+ applySurvivalDamage();
+ updateUI();
 }
 
 function gain(a){
@@ -103,12 +132,23 @@ function gain(a){
  if(player.location==="Junkyard") player.inventory.metal+=a;
  if(player.location==="Clearing") player.inventory.grass+=a;
  if(player.location==="River") player.inventory.water+=a;
+}
+
+function sleep(){
+ if(player.location==="Shelter"){
+  player.energy=Math.min(100,player.energy+60);
+  player.health=Math.min(100,player.health+10);
+ }else{
+  player.energy=Math.min(100,player.energy+40);
+ }
+ player.thirst=Math.max(0,player.thirst-10);
+ advanceTime();
+ applySurvivalDamage();
  updateUI();
 }
 
 function craftBandage(){
- if(player.inventory.grass<2||player.energy<2)
-  return log("Need grass & energy.");
+ if(player.inventory.grass<2||player.energy<2) return log("Need grass & energy.");
  player.inventory.grass-=2;
  player.energy-=2;
  player.inventory.bandage++;
@@ -129,13 +169,6 @@ function useBandage(){
  updateUI();
 }
 
-function sleep(){
- player.energy=Math.min(100,player.energy+40);
- player.thirst=Math.max(0,player.thirst-10);
- advanceTime();
- updateUI();
-}
-
 function buildFire(){
  if(player.inventory.wood<3) return log("Need wood.");
  player.inventory.wood-=3;
@@ -146,21 +179,12 @@ function buildFire(){
 
 function upgradeShelter(){
  if(player.shelter.level>=3) return log("Shelter maxed.");
- let cost=[
-  null,
-  {wood:5,grass:2},
-  {wood:8,metal:2}
- ][player.shelter.level];
- for(let i in cost)
-  if(player.inventory[i]<cost[i]) return log("Missing "+i);
- for(let i in cost) player.inventory[i]-=cost[i];
- player.energy-=15;
  player.shelter.level++;
+ player.energy-=15;
  updateUI();
 }
 
 function upgradeArmor(){
- if(player.armor.level>=3) return log("Armor maxed.");
  if(player.inventory.metal<3) return log("Need metal.");
  player.inventory.metal-=3;
  player.armor.level++;
@@ -169,21 +193,17 @@ function upgradeArmor(){
  updateUI();
 }
 
+function repairArmor(){
+ if(player.inventory.metal<1) return log("Need metal.");
+ player.inventory.metal--;
+ player.armor.durability=Math.min(player.armor.max,player.armor.durability+15);
+ updateUI();
+}
+
 function repairCar(){
- if(player.car.repairs>=player.car.max)
-  return log("Car repaired.");
- let cost=carRepairCosts[player.car.repairs];
- if(player.energy<cost.energy) return log("No energy.");
- for(let i in cost)
-  if(i!=="energy" && player.inventory[i]<cost[i])
-   return log("Missing "+i);
- for(let i in cost)
-  if(i!=="energy") player.inventory[i]-=cost[i];
- player.energy-=cost.energy;
+ if(player.car.repairs>=player.car.max) return;
  player.car.repairs++;
- if(player.car.repairs>=player.car.max){
-  log("🚗 You repair the car and escape. YOU WIN.");
- }
+ log("🔧 Car repaired.");
  updateUI();
 }
 
@@ -194,7 +214,7 @@ function saveGame(){
 
 function loadGame(){
  let d=localStorage.getItem("roadtripSave");
- if(!d) return log("No save found.");
+ if(!d) return;
  player=JSON.parse(d);
  updateUI();
  log("📂 Game loaded.");
