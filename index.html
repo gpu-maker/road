@@ -23,6 +23,7 @@
   <div>🛡 Armor: <span id="armor"></span></div>
 </div>
 
+<!-- ✅ TRAVEL PANEL WITH SHELTER BUTTON -->
 <div class="panel">
 <h2>Travel (⚡10)</h2>
 <button onclick="travel('Shelter')">🏕 Shelter</button>
@@ -40,109 +41,26 @@
 
 <div class="panel">
 <h2>Craft / Fire</h2>
-<button onclick="craftBandage()">🩹 Bandage (Grass ×2 + ⚡2)</button>
-<button onclick="buildFire()">🔥 Campfire (Wood ×3)</button>
+<button onclick="craftBandage()">🩹 Craft Bandage</button>
+<button onclick="buildFire()">🔥 Build Campfire</button>
 </div>
 
 <div class="panel">
 <h2>Items</h2>
-<button onclick="drink()">💧 Drink Water (+30)</button>
-<button onclick="useBandage()">🩹 Use Bandage (+20 HP)</button>
+<button onclick="drink()">💧 Drink Water</button>
+<button onclick="useBandage()">🩹 Use Bandage</button>
 <button onclick="sleep()">😴 Sleep</button>
 </div>
 
 <div class="panel">
 <h2>Upgrades</h2>
 <button onclick="upgradeShelter()">🏕 Upgrade Shelter</button>
-<button onclick="upgradeArmor()">🛡 Upgrade Armor (Metal ×3)</button>
-<button onclick="repairArmor()">🔧 Repair Armor (Metal ×1)</button>
+<button onclick="upgradeArmor()">🛡 Upgrade Armor</button>
+<button onclick="repairArmor()">🔧 Repair Armor</button>
 </div>
 
 <div class="panel">
-<h2>🚗 Car Repairs</h2>
-<div id="carStatus"></div>
-<button onclick="repairCar()">🔧 Repair Car</button>
-</div>
-
-<div class="panel">
-<h2>💾 Save / Load</h2>
-<button onclick="saveGame()">💾 Save</button>
-<button onclick="loadGame()">📂 Load</button>
-</div>
-
-<div class="panel">
-<h2>Inventory</h2>
-<div id="inventory"></div>
-</div>
-
-<div id="log"></div>
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Roadtrip Survival</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div id="game">
-<h1>🚗 Roadtrip Survival</h1>
-
-<div id="stats">
-  <div>❤️ Health: <span id="health"></span></div>
-  <div>⚡ Energy: <span id="energy"></span></div>
-  <div>💧 Thirst: <span id="thirst"></span></div>
-  <div>♨ Warmth: <span id="warmth"></span></div>
-  <div>🌤 Weather: <span id="weather"></span></div>
-  <div>🌙 Time: <span id="time"></span></div>
-  <div>📍 Location: <span id="location"></span></div>
-  <div>🔥 Fire: <span id="fire"></span></div>
-  <div>🏕 Shelter: <span id="shelter"></span></div>
-  <div>🛡 Armor: <span id="armor"></span></div>
-</div>
-
-<div class="panel">
-<h2>Travel (⚡10)</h2>
-<button onclick="travel('Shelter')">🏕 Shelter</button>
-<button onclick="travel('Forest')">🌲 Forest</button>
-<button onclick="travel('Junkyard')">🚗 Junkyard</button>
-<button onclick="travel('Clearing')">🌾 Clearing</button>
-<button onclick="travel('River')">🌊 River</button>
-</div>
-
-<div class="panel">
-<h2>Gather</h2>
-<button onclick="gather()">⛏ Gather (⚡5)</button>
-<button onclick="quickGather()">⚡ Quick Gather (⚡1)</button>
-</div>
-
-<div class="panel">
-<h2>Craft / Fire</h2>
-<button onclick="craftBandage()">🩹 Bandage (Grass ×2 + ⚡2)</button>
-<button onclick="buildFire()">🔥 Campfire (Wood ×3)</button>
-</div>
-
-<div class="panel">
-<h2>Items</h2>
-<button onclick="drink()">💧 Drink Water (+30)</button>
-<button onclick="useBandage()">🩹 Use Bandage (+20 HP)</button>
-<button onclick="sleep()">😴 Sleep</button>
-</div>
-
-<div class="panel">
-<h2>Upgrades</h2>
-<button onclick="upgradeShelter()">🏕 Upgrade Shelter</button>
-<button onclick="upgradeArmor()">🛡 Upgrade Armor (Metal ×3)</button>
-<button onclick="repairArmor()">🔧 Repair Armor (Metal ×1)</button>
-</div>
-
-<div class="panel">
-<h2>🚗 Car Repairs</h2>
+<h2>🚗 Car</h2>
 <div id="carStatus"></div>
 <button onclick="repairCar()">🔧 Repair Car</button>
 </div>
