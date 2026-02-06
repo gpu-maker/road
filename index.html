@@ -23,62 +23,31 @@
   <div>🛡 Armor: <span id="armor"></span></div>
 </div>
 
-<!-- ✅ TRAVEL PANEL WITH SHELTER BUTTON -->
+<!-- 🚶 TRAVEL -->
 <div class="panel">
 <h2>Travel (⚡10)</h2>
-<button onclick="travel('Shelter')">🏕 Shelter</button>
-<button onclick="travel('Forest')">🌲 Forest</button>
-<button onclick="travel('Junkyard')">🚗 Junkyard</button>
-<button onclick="travel('Clearing')">🌾 Clearing</button>
-<button onclick="travel('River')">🌊 River</button>
+<button onclick="travel('Shelter')">🏕 Shelter (⚡10)</button>
+<button onclick="travel('Forest')">🌲 Forest (⚡10)</button>
+<button onclick="travel('Junkyard')">🚗 Junkyard (⚡10)</button>
+<button onclick="travel('Clearing')">🌾 Clearing (⚡10)</button>
+<button onclick="travel('River')">🌊 River (⚡10)</button>
 </div>
 
+<!-- ⛏ GATHER -->
 <div class="panel">
 <h2>Gather</h2>
 <button onclick="gather()">⛏ Gather (⚡5)</button>
 <button onclick="quickGather()">⚡ Quick Gather (⚡1)</button>
 </div>
 
+<!-- 🔨 CRAFTING -->
 <div class="panel">
-<h2>Craft / Fire</h2>
-<button onclick="craftBandage()">🩹 Craft Bandage</button>
-<button onclick="buildFire()">🔥 Build Campfire</button>
+<h2>Crafting</h2>
+<button onclick="craftBandage()">🩹 Bandage (Grass ×2, ⚡2)</button>
+<button onclick="buildFire()">🔥 Campfire (Wood ×3)</button>
 </div>
 
+<!-- 🎒 ITEMS -->
 <div class="panel">
 <h2>Items</h2>
-<button onclick="drink()">💧 Drink Water</button>
-<button onclick="useBandage()">🩹 Use Bandage</button>
-<button onclick="sleep()">😴 Sleep</button>
-</div>
-
-<div class="panel">
-<h2>Upgrades</h2>
-<button onclick="upgradeShelter()">🏕 Upgrade Shelter</button>
-<button onclick="upgradeArmor()">🛡 Upgrade Armor</button>
-<button onclick="repairArmor()">🔧 Repair Armor</button>
-</div>
-
-<div class="panel">
-<h2>🚗 Car</h2>
-<div id="carStatus"></div>
-<button onclick="repairCar()">🔧 Repair Car</button>
-</div>
-
-<div class="panel">
-<h2>💾 Save / Load</h2>
-<button onclick="saveGame()">💾 Save</button>
-<button onclick="loadGame()">📂 Load</button>
-</div>
-
-<div class="panel">
-<h2>Inventory</h2>
-<div id="inventory"></div>
-</div>
-
-<div id="log"></div>
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
+<button onclick="drink()">💧 Drink Water (Water ×
