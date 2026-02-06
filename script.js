@@ -1,161 +1,188 @@
-const SAVE = "roadtrip_map_weather_save";
-
-/* ========= GAME STATE ========= */
-let state = {
+let player = {
   health: 100,
   energy: 100,
-  day: 1,
-  isDay: true,
-  tick: 0,
+  thirst: 100,
+  warmth: 50,
 
+  time: "Day",
   weather: "Clear",
+  carRepairs: 0,
+
+  campfire: { active:false, fuel:0 },
+
+  armor: { level:1, durability:40, max:40 },
+  shelter: { level:1 },
 
   inventory: {
-    wood: 0,
-    grass: 0,
-    metal: 0,
-    stoneArrow: 0,
-    metalArrow: 0
+    wood:0, water:0, grass:0, metal:0, meat:0,
+    bandage:0, arrow_stone:0, arrow_metal:0
   },
 
-  weapons: {
-    axe: { dur: 100, lvl: 1 },
-    bow: { lvl: 1 }
-  },
-
-  armor: { dur: 100, lvl: 1 },
-
-  shelter: 0,
-  threat: 0,
-
-  mapSize: 5,
-  player: { x: 2, y: 2 },
-  explored: {}
+  equipment: { axe:false, bow:false }
 };
 
-const shelters = ["None", "Camp", "Shack", "Cabin"];
-const defense = [0, 5, 10, 20];
-const weatherTypes = ["Clear", "Rain", "Fog", "Storm"];
+const shelterNames = ["","⛺ Tent","🛖 Small Hut","🏠 Cabin"];
+const weatherTypes = [
+  {name:"Clear",drain:1},
+  {name:"Rain",drain:2},
+  {name:"Cold",drain:4}
+];
 
-/* ========= SAVE ========= */
-function saveGame() {
-  localStorage.setItem(SAVE, JSON.stringify(state));
-}
+function updateUI(){
+  health.textContent=player.health;
+  energy.textContent=player.energy;
+  thirst.textContent=player.thirst;
+  warmth.textContent=player.warmth;
+  weather.textContent=player.weather;
+  time.textContent=player.time;
+  repairs.textContent=player.carRepairs;
+  armor.textContent=`L${player.armor.level} (${player.armor.durability}/${player.armor.max})`;
+  shelter.textContent=shelterNames[player.shelter.level];
 
-function loadGame() {
-  const d = localStorage.getItem(SAVE);
-  if (d) state = JSON.parse(d);
-}
+  const icon=document.getElementById("shelterIcon");
+  icon.className="icon";
+  if(player.shelter.level===1)icon.classList.add("tent");
+  if(player.shelter.level===2)icon.classList.add("hut");
+  if(player.shelter.level===3)icon.classList.add("cabin");
 
-/* ========= UI ========= */
-function update() {
-  health.textContent = state.health;
-  energy.textContent = Math.floor(state.energy);
-  cycle.textContent = state.isDay ? `☀️ Day ${state.day}` : `🌙 Night ${state.day}`;
-  weather.textContent = `🌦️ Weather: ${state.weather}`;
-
-  inventory.innerHTML = "";
-  for (let i in state.inventory)
-    inventory.innerHTML += `<div class="item">${i}: ${state.inventory[i]}</div>`;
-
-  shelter.innerHTML = `<div class="item">${shelters[state.shelter]}<br>Defense ${defense[state.shelter]}</div>`;
-  drawMinimap();
-}
-
-/* ========= MINIMAP ========= */
-function drawMinimap() {
-  minimap.innerHTML = "";
-  for (let y = 0; y < state.mapSize; y++) {
-    for (let x = 0; x < state.mapSize; x++) {
-      const key = `${x},${y}`;
-      let cls = "mapPixel";
-      if (state.explored[key]) cls += " explored";
-      if (state.player.x === x && state.player.y === y) cls += " player";
-      minimap.innerHTML += `<div class="${cls}"></div>`;
-    }
+  inventory.innerHTML="";
+  for(let i in player.inventory){
+    inventory.innerHTML+=`<span>🟦 ${i}: ${player.inventory[i]}</span>`;
   }
 }
 
-/* ========= MAP MOVE ========= */
-function move(dx, dy) {
-  if (state.energy < 5) return;
-  const nx = state.player.x + dx;
-  const ny = state.player.y + dy;
-  if (nx < 0 || ny < 0 || nx >= state.mapSize || ny >= state.mapSize) return;
+function log(m){document.getElementById("log").textContent=m;}
 
-  state.energy -= state.weather === "Rain" ? 7 : 5;
-  state.player = { x: nx, y: ny };
-  state.explored[`${nx},${ny}`] = true;
-  state.threat += 5;
-  log("You move deeper into the forest.");
-  update();
+function drink(){
+  if(player.inventory.water<=0) return log("No water.");
+  player.inventory.water--;
+  player.thirst=Math.min(100,player.thirst+30);
+  updateUI();
 }
 
-/* ========= COMBAT ========= */
-function melee() {
-  if (state.energy < 8) return;
-  state.energy -= 8;
-  state.threat -= 20;
-  state.weapons.axe.dur -= 5;
-  log("You fight back with your axe.");
+/* 🔥 CAMPFIRE */
+function buildFire(){
+  if(player.inventory.wood<2) return log("Not enough wood.");
+  player.inventory.wood-=2;
+  player.campfire.active=true;
+  player.campfire.fuel=100;
+  log("You light a campfire.");
+  updateUI();
 }
 
-function shoot(type) {
-  const key = type + "Arrow";
-  if (state.inventory[key] <= 0) return;
-  state.inventory[key]--;
-  let dmg = type === "metal" ? 25 : 12;
-  if (state.weather === "Fog") dmg -= 5;
-  state.threat -= dmg;
-  log(`You fire a ${type} arrow.`);
+/* 💤 SLEEP */
+function sleep(){
+  if(player.time!=="Night") return log("You can only sleep at night.");
+
+  let heal=5, rest=30, risk=0.35;
+
+  if(player.shelter.level===2){ heal=12; rest=50; risk-=0.15; }
+  if(player.shelter.level===3){ heal=20; rest=70; risk-=0.25; }
+  if(player.campfire.active) risk-=0.15;
+
+  if(Math.random()<risk){
+    applyDamage(15);
+    log("Something attacks you in your sleep!");
+  } else {
+    player.health=Math.min(100,player.health+heal);
+    player.energy=Math.min(100,player.energy+rest);
+    log("You sleep safely until morning.");
+  }
+
+  player.time="Day";
+  updateUI();
 }
 
-/* ========= WEATHER ========= */
-function rollWeather() {
-  state.weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+function applyDamage(a){
+  if(player.time==="Night"){
+    if(player.shelter.level===2)a-=5;
+    if(player.shelter.level===3)a-=8;
+    if(player.campfire.active)a-=5;
+  }
+  if(a<0)a=0;
+
+  if(player.armor.durability>0){
+    player.armor.durability-=a;
+    if(player.armor.durability<0){
+      player.health+=player.armor.durability;
+      player.armor.durability=0;
+    }
+  } else player.health-=a;
+
+  checkDeath();
 }
 
-/* ========= NIGHT ========= */
-function nightAttack() {
-  let dmg = Math.max(0, state.threat - defense[state.shelter]);
-  if (state.weather === "Storm") dmg += 5;
-
-  if (state.armor.dur > 0) state.armor.dur -= dmg;
-  else state.health -= dmg;
-
-  log("Something attacks in the dark...");
+function gather(i){
+  if(player.energy<5)return log("Too tired.");
+  player.energy-=5;
+  player.thirst-=3;
+  player.warmth-=2;
+  player.inventory[i]++;
+  dangerCheck();
+  updateUI();
 }
 
-/* ========= LOOP ========= */
-setInterval(() => {
-  state.tick++;
+function dangerCheck(){
+  let chance=0.35;
+  if(player.campfire.active) chance-=0.15;
+  if(player.time==="Night"&&Math.random()<chance)applyDamage(15);
+}
 
-  if (state.tick >= 5) {
-    state.tick = 0;
-    state.isDay = !state.isDay;
+function weatherTick(){
+  let w=weatherTypes[Math.floor(Math.random()*weatherTypes.length)];
+  player.weather=w.name;
 
-    if (state.isDay) {
-      state.day++;
-      state.threat = 0;
-      rollWeather();
-      log("Morning breaks.");
-    } else {
-      log("Night falls...");
+  let drain=w.drain;
+  if(player.campfire.active) drain-=2;
+  if(player.shelter.level===2) drain-=1;
+  if(player.shelter.level===3) drain-=2;
+  if(drain<0) drain=0;
+
+  player.energy-=drain;
+  player.thirst-=drain;
+  player.warmth-=drain*2;
+
+  if(player.warmth<=0){
+    player.health-=5;
+    log("You are freezing.");
+  }
+
+  if(player.campfire.active){
+    player.campfire.fuel-=10;
+    player.warmth=Math.min(100,player.warmth+5);
+    if(player.campfire.fuel<=0){
+      player.campfire.active=false;
+      log("The campfire burns out.");
     }
   }
 
-  if (state.isDay) state.energy = Math.min(100, state.energy + 2);
-  else nightAttack();
-
-  update();
-  saveGame();
-}, 4000);
-
-/* ========= LOG ========= */
-function log(t) {
-  logDiv.innerHTML += t + "<br>";
-  logDiv.scrollTop = logDiv.scrollHeight;
+  checkDeath();
+  updateUI();
 }
 
-loadGame();
-update();
+function checkDeath(){
+  if(player.health<=0||player.energy<=0||player.thirst<=0){
+    alert("☠️ You died in the forest.");
+    localStorage.clear();location.reload();
+  }
+}
+
+function winGame(){
+  alert("🚗 You repaired the car and escaped!");
+  localStorage.clear();location.reload();
+}
+
+function saveGame(){
+  localStorage.setItem("roadtripSave",JSON.stringify(player));
+}
+
+function loadGame(){
+  let d=localStorage.getItem("roadtripSave");
+  if(d){player=JSON.parse(d);updateUI();}
+}
+
+function cycleTime(){player.time=player.time==="Day"?"Night":"Day";}
+
+setInterval(cycleTime,20000);
+setInterval(weatherTick,15000);
+updateUI();
