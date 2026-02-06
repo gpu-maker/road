@@ -14,8 +14,31 @@ h1{text-align:center;}
 #stats{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:6px;
+  gap:10px;
 }
+
+.stat{
+  margin-bottom:8px;
+}
+
+.bar{
+  width:100%;
+  height:14px;
+  background:#24384f;
+  border-radius:10px;
+  overflow:hidden;
+  margin:4px 0;
+}
+
+.fill{
+  height:100%;
+  width:100%;
+  transition:width 0.3s;
+}
+
+#healthBar{ background:#e74c3c; }
+#energyBar{ background:#f1c40f; }
+#thirstBar{ background:#3498db; }
 
 .panel{
   background:#102a44;
@@ -43,4 +66,5 @@ button:disabled{ background:#555; }
   padding:10px;
   border-radius:12px;
   margin-top:10px;
+  min-height:40px;
 }
