@@ -1,76 +1,55 @@
-body {
-  background:#071c2e;
-  color:#a6dcff;
-  font-family:monospace;
-  image-rendering:pixelated;
+body{
+  background:#0b1e34;
+  color:#dcecff;
+  font-family:Arial, sans-serif;
 }
 
-#game {
-  max-width:800px;
+#game{
+  max-width:900px;
   margin:auto;
 }
 
-h1 {
+h1{
   text-align:center;
-  color:#4fc3ff;
 }
 
-.panel {
-  background:#0e2a45;
-  border:2px solid #2196f3;
+#stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+.panel{
+  background:#102a44;
   padding:10px;
   margin:10px 0;
+  border-radius:14px;
 }
 
-button {
-  background:#1976d2;
-  border:none;
+button{
+  background:#1e90ff;
   color:white;
-  padding:6px;
-  margin:3px;
+  border:none;
+  padding:8px 12px;
+  margin:4px;
+  border-radius:14px;
   cursor:pointer;
+  font-weight:bold;
 }
 
-button:hover {
-  background:#42a5f5;
+button:hover{
+  background:#4da3ff;
 }
 
-#inventory span {
-  display:inline-block;
-  margin-right:8px;
+button:disabled{
+  background:#555;
+  cursor:not-allowed;
 }
 
-#log {
+#log{
+  background:#08182a;
+  padding:10px;
+  border-radius:12px;
   margin-top:10px;
-  color:#ffcc80;
   min-height:40px;
-}
-
-/* Pixel Shelter Icons */
-.icon {
-  display:inline-block;
-  width:12px;
-  height:12px;
-  image-rendering:pixelated;
-  margin-right:4px;
-}
-
-.icon.tent {
-  background:
-    linear-gradient(#4fc3ff 0 0) 4px 8px/4px 4px no-repeat,
-    linear-gradient(#1e88e5 0 0) 2px 6px/8px 2px no-repeat;
-}
-
-.icon.hut {
-  background:
-    linear-gradient(#4fc3ff 0 0) 3px 6px/6px 4px no-repeat,
-    linear-gradient(#1e88e5 0 0) 2px 4px/8px 2px no-repeat,
-    linear-gradient(#0d47a1 0 0) 4px 2px/4px 2px no-repeat;
-}
-
-.icon.cabin {
-  background:
-    linear-gradient(#4fc3ff 0 0) 3px 6px/6px 4px no-repeat,
-    linear-gradient(#1e88e5 0 0) 2px 4px/8px 2px no-repeat,
-    linear-gradient(#0d47a1 0 0) 2px 2px/8px 2px no-repeat;
 }
