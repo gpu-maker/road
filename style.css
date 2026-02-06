@@ -9,9 +9,7 @@ body{
   margin:auto;
 }
 
-h1{
-  text-align:center;
-}
+h1{text-align:center;}
 
 #stats{
   display:grid;
@@ -37,19 +35,12 @@ button{
   font-weight:bold;
 }
 
-button:hover{
-  background:#4da3ff;
-}
-
-button:disabled{
-  background:#555;
-  cursor:not-allowed;
-}
+button:hover{ background:#4da3ff; }
+button:disabled{ background:#555; }
 
 #log{
   background:#08182a;
   padding:10px;
   border-radius:12px;
   margin-top:10px;
-  min-height:40px;
 }
