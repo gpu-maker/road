@@ -1,188 +1,134 @@
-let player = {
-  health: 100,
-  energy: 100,
-  thirst: 100,
-  warmth: 50,
+let player={
+  health:100,
+  energy:100,
+  thirst:100,
+  warmth:50,
 
-  time: "Day",
-  weather: "Clear",
-  carRepairs: 0,
+  location:"Forest",
 
-  campfire: { active:false, fuel:0 },
+  campfire:{active:false,level:0,fuel:0},
+  shelter:{level:1},
+  armor:{level:1,durability:40,max:40},
 
-  armor: { level:1, durability:40, max:40 },
-  shelter: { level:1 },
-
-  inventory: {
-    wood:0, water:0, grass:0, metal:0, meat:0,
-    bandage:0, arrow_stone:0, arrow_metal:0
-  },
-
-  equipment: { axe:false, bow:false }
+  inventory:{
+    wood:0,
+    metal:0,
+    grass:0,
+    water:1,
+    bandage:0
+  }
 };
 
-const shelterNames = ["","⛺ Tent","🛖 Small Hut","🏠 Cabin"];
-const weatherTypes = [
-  {name:"Clear",drain:1},
-  {name:"Rain",drain:2},
-  {name:"Cold",drain:4}
-];
+const shelterNames=["","⛺ Tent","🛖 Hut","🏠 Cabin"];
+const fireNames=["None","🔥 Campfire","🪨 Ring","🏭 Furnace"];
 
 function updateUI(){
   health.textContent=player.health;
   energy.textContent=player.energy;
   thirst.textContent=player.thirst;
   warmth.textContent=player.warmth;
-  weather.textContent=player.weather;
-  time.textContent=player.time;
-  repairs.textContent=player.carRepairs;
-  armor.textContent=`L${player.armor.level} (${player.armor.durability}/${player.armor.max})`;
+  location.textContent=player.location;
+  fire.textContent=fireNames[player.campfire.level];
   shelter.textContent=shelterNames[player.shelter.level];
-
-  const icon=document.getElementById("shelterIcon");
-  icon.className="icon";
-  if(player.shelter.level===1)icon.classList.add("tent");
-  if(player.shelter.level===2)icon.classList.add("hut");
-  if(player.shelter.level===3)icon.classList.add("cabin");
+  armor.textContent=`L${player.armor.level} (${player.armor.durability}/${player.armor.max})`;
 
   inventory.innerHTML="";
   for(let i in player.inventory){
-    inventory.innerHTML+=`<span>🟦 ${i}: ${player.inventory[i]}</span>`;
+    inventory.innerHTML+=`<div>${i}: ${player.inventory[i]}</div>`;
   }
 }
 
-function log(m){document.getElementById("log").textContent=m;}
+function log(m){
+  document.getElementById("log").textContent=m;
+}
 
+/* 🌍 TRAVEL */
+function travel(place){
+  if(player.energy<10) return log("Not enough energy.");
+  player.energy-=10;
+  player.location=place;
+  log("You travel to the "+place+".");
+  updateUI();
+}
+
+/* ⛏ GATHER */
+function gather(){
+  if(player.energy<5) return log("Too tired.");
+  player.energy-=5;
+  gainResource(2);
+}
+
+function quickGather(){
+  if(player.energy<1) return log("Too tired.");
+  player.energy-=1;
+  gainResource(1);
+}
+
+function gainResource(amount){
+  if(player.location==="Forest") player.inventory.wood+=amount;
+  if(player.location==="Junkyard") player.inventory.metal+=amount;
+  if(player.location==="Clearing") player.inventory.grass+=amount;
+  if(player.location==="River") player.inventory.water+=amount;
+  updateUI();
+}
+
+/* 🩹 CRAFT BANDAGE */
+function craftBandage(){
+  if(player.inventory.grass<2) return log("Need 2 grass.");
+  if(player.energy<2) return log("Need 2 energy.");
+  player.inventory.grass-=2;
+  player.energy-=2;
+  player.inventory.bandage++;
+  log("You craft a bandage.");
+  updateUI();
+}
+
+/* 🎒 ITEMS */
 function drink(){
   if(player.inventory.water<=0) return log("No water.");
   player.inventory.water--;
   player.thirst=Math.min(100,player.thirst+30);
+  log("You drink water.");
   updateUI();
 }
 
-/* 🔥 CAMPFIRE */
-function buildFire(){
-  if(player.inventory.wood<2) return log("Not enough wood.");
-  player.inventory.wood-=2;
-  player.campfire.active=true;
-  player.campfire.fuel=100;
-  log("You light a campfire.");
+function useBandage(){
+  if(player.inventory.bandage<=0) return log("No bandages.");
+  player.inventory.bandage--;
+  player.health=Math.min(100,player.health+20);
+  log("You apply a bandage (+20 HP).");
   updateUI();
 }
 
-/* 💤 SLEEP */
-function sleep(){
-  if(player.time!=="Night") return log("You can only sleep at night.");
+/* ⬆ UPGRADES */
+function upgradeShelter(){
+  let cost=[
+    null,
+    {wood:5,grass:2},
+    {wood:8,metal:2}
+  ][player.shelter.level];
 
-  let heal=5, rest=30, risk=0.35;
+  if(!cost) return log("Shelter already maxed.");
+  if(player.energy<15) return log("Need 15 energy.");
 
-  if(player.shelter.level===2){ heal=12; rest=50; risk-=0.15; }
-  if(player.shelter.level===3){ heal=20; rest=70; risk-=0.25; }
-  if(player.campfire.active) risk-=0.15;
-
-  if(Math.random()<risk){
-    applyDamage(15);
-    log("Something attacks you in your sleep!");
-  } else {
-    player.health=Math.min(100,player.health+heal);
-    player.energy=Math.min(100,player.energy+rest);
-    log("You sleep safely until morning.");
+  for(let i in cost){
+    if(player.inventory[i]<cost[i]) return log("Missing "+i);
   }
 
-  player.time="Day";
+  for(let i in cost) player.inventory[i]-=cost[i];
+  player.energy-=15;
+  player.shelter.level++;
   updateUI();
 }
 
-function applyDamage(a){
-  if(player.time==="Night"){
-    if(player.shelter.level===2)a-=5;
-    if(player.shelter.level===3)a-=8;
-    if(player.campfire.active)a-=5;
-  }
-  if(a<0)a=0;
-
-  if(player.armor.durability>0){
-    player.armor.durability-=a;
-    if(player.armor.durability<0){
-      player.health+=player.armor.durability;
-      player.armor.durability=0;
-    }
-  } else player.health-=a;
-
-  checkDeath();
-}
-
-function gather(i){
-  if(player.energy<5)return log("Too tired.");
-  player.energy-=5;
-  player.thirst-=3;
-  player.warmth-=2;
-  player.inventory[i]++;
-  dangerCheck();
+function upgradeArmor(){
+  if(player.armor.level>=3) return log("Armor already maxed.");
+  if(player.inventory.metal<3) return log("Need 3 metal.");
+  player.inventory.metal-=3;
+  player.armor.level++;
+  player.armor.max+=20;
+  player.armor.durability=player.armor.max;
   updateUI();
 }
 
-function dangerCheck(){
-  let chance=0.35;
-  if(player.campfire.active) chance-=0.15;
-  if(player.time==="Night"&&Math.random()<chance)applyDamage(15);
-}
-
-function weatherTick(){
-  let w=weatherTypes[Math.floor(Math.random()*weatherTypes.length)];
-  player.weather=w.name;
-
-  let drain=w.drain;
-  if(player.campfire.active) drain-=2;
-  if(player.shelter.level===2) drain-=1;
-  if(player.shelter.level===3) drain-=2;
-  if(drain<0) drain=0;
-
-  player.energy-=drain;
-  player.thirst-=drain;
-  player.warmth-=drain*2;
-
-  if(player.warmth<=0){
-    player.health-=5;
-    log("You are freezing.");
-  }
-
-  if(player.campfire.active){
-    player.campfire.fuel-=10;
-    player.warmth=Math.min(100,player.warmth+5);
-    if(player.campfire.fuel<=0){
-      player.campfire.active=false;
-      log("The campfire burns out.");
-    }
-  }
-
-  checkDeath();
-  updateUI();
-}
-
-function checkDeath(){
-  if(player.health<=0||player.energy<=0||player.thirst<=0){
-    alert("☠️ You died in the forest.");
-    localStorage.clear();location.reload();
-  }
-}
-
-function winGame(){
-  alert("🚗 You repaired the car and escaped!");
-  localStorage.clear();location.reload();
-}
-
-function saveGame(){
-  localStorage.setItem("roadtripSave",JSON.stringify(player));
-}
-
-function loadGame(){
-  let d=localStorage.getItem("roadtripSave");
-  if(d){player=JSON.parse(d);updateUI();}
-}
-
-function cycleTime(){player.time=player.time==="Day"?"Night":"Day";}
-
-setInterval(cycleTime,20000);
-setInterval(weatherTick,15000);
 updateUI();
