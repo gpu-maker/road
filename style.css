@@ -1,60 +1,76 @@
 body {
-  background: #081a33;
-  color: #bfe9ff;
-  font-family: monospace;
-  padding: 20px;
+  background:#071c2e;
+  color:#a6dcff;
+  font-family:monospace;
+  image-rendering:pixelated;
 }
 
-h1, h2 { color: #66ccff; }
-
-.buttons button {
-  background: #123c6a;
-  color: #bfe9ff;
-  border: 2px solid #66ccff;
-  padding: 6px;
-  margin: 4px;
+#game {
+  max-width:800px;
+  margin:auto;
 }
 
-#inventory, #shelter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+h1 {
+  text-align:center;
+  color:#4fc3ff;
 }
 
-.item {
-  border: 2px solid #66ccff;
-  padding: 4px;
-  width: 130px;
-  background: #0f2f55;
+.panel {
+  background:#0e2a45;
+  border:2px solid #2196f3;
+  padding:10px;
+  margin:10px 0;
 }
 
-/* ===== MINIMAP ===== */
-#minimap {
-  display: grid;
-  grid-template-columns: repeat(5, 12px);
-  gap: 2px;
-  margin-bottom: 10px;
+button {
+  background:#1976d2;
+  border:none;
+  color:white;
+  padding:6px;
+  margin:3px;
+  cursor:pointer;
 }
 
-.mapPixel {
-  width: 12px;
-  height: 12px;
-  background: #021024;
+button:hover {
+  background:#42a5f5;
 }
 
-.explored { background: #1e6fa8; }
-.player { background: #66ccff; }
-
-/* PIXEL ICONS */
-.pixel { width: 12px; height: 12px; }
-.axe { background: black; }
-.bow { border: 2px solid black; border-left: none; }
-.armor { background: black; }
+#inventory span {
+  display:inline-block;
+  margin-right:8px;
+}
 
 #log {
-  background: #07162d;
-  border: 2px solid #66ccff;
-  padding: 6px;
-  height: 130px;
-  overflow-y: auto;
+  margin-top:10px;
+  color:#ffcc80;
+  min-height:40px;
+}
+
+/* Pixel Shelter Icons */
+.icon {
+  display:inline-block;
+  width:12px;
+  height:12px;
+  image-rendering:pixelated;
+  margin-right:4px;
+}
+
+.icon.tent {
+  background:
+    linear-gradient(#4fc3ff 0 0) 4px 8px/4px 4px no-repeat,
+    linear-gradient(#1e88e5 0 0) 2px 6px/8px 2px no-repeat;
+}
+
+.icon.hut {
+  background:
+    linear-gradient(#4fc3ff 0 0) 3px 6px/6px 4px no-repeat,
+    linear-gradient(#1e88e5 0 0) 2px 4px/8px 2px no-repeat,
+    linear-gradient(#0d47a1 0 0) 4px 2px/4px 2px no-repeat;
+}
+
+.icon.cabin {
+  background:
+    linear-gradient(#4fc3ff 0 0) 3px 6px/6px 4px no-repeat,
+    linear-gradient(#1e88e5 0 0) 2px 4px/8px 2px no-repeat,
+    linear-gradient(#0d47a1 0 0) 2px 2px/8px 2px no-repeat;
 }
